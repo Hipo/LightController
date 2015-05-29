@@ -22,11 +22,19 @@ except:
         @classmethod
         def setup(cls, *args, **kwargs):
             pass
+
+        @classmethod
+        def output(cls, *args, **kwargs):
+            pass
+
+
         BCM = None
         OUT = None
+        LOW = None
+        HIGH = None
 
 from models import Device
-from settings import LAMP_PINS
+from settings import LAMPS
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -40,9 +48,10 @@ class MyClient(TornadoWebSocketClient):
 
     def opened(self):
         print "opened connection"
+        print LAMPS.keys()
         self.send(json.dumps(dict(
             cmd='hello',
-            switches=['sw1', 'sw2'],
+            switches=LAMPS.keys(),
             id=1
         )))
 
@@ -51,17 +60,10 @@ class MyClient(TornadoWebSocketClient):
 
     def cmd_switch_light(self, data):
         switch_id = data["switch_id"]
-
         on_off = bool(int(data["on_off"]))
-        print "*****"
-        print on_off
-        print "*****"
-        #GPIO.output(LAMP_PINS[0], GPIO.LOW)
-        
-        # TODO: @yigit baskan burayi doldurabilcen mi ?
-        # switch.open(data['switch_id'], data['onoff'])
-        print "here i switch", data
-        return 'OK'
+
+        print "here i switch %s to %s" % (switch_id, on_off)
+        GPIO.output(LAMPS[switch_id], GPIO.HIGH if on_off else GPIO.LOW)
 
     def received_message(self, m):
         try:

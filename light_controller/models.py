@@ -22,7 +22,7 @@ except:
         OUT= None
 
 
-from settings import LAMP_PINS
+from settings import LAMPS
 
 
 class Device(object):
@@ -43,7 +43,7 @@ class Device(object):
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
 
-        for LAMP_PIN in LAMP_PINS:
+        for LAMP_PIN in LAMPS.keys():
             GPIO.setup(LAMP_PIN, GPIO.OUT)
 
     def create_unique_name(self):

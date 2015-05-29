@@ -292,10 +292,10 @@ def run():
     pika_client = PikaClient(ioloop)
     pika_client.connect()
 
-    task = tornado.ioloop.PeriodicCallback(
-            ping_all,
-            10000)
-    task.start()
+    # task = tornado.ioloop.PeriodicCallback(
+    #         ping_all,
+    #         10000)
+    # task.start()
 
 
     ioloop.start()
