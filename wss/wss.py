@@ -184,11 +184,14 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
             'device_uuid': self.device_uuid,
             'switches': data['switches']
         }
+        print "posting"
+        print json.dumps({'device_data': data})
 
+        headers = {'content-type': 'application/json'}
         client = AsyncHTTPClient(max_clients=100)
         request = HTTPRequest(DEVICE_REGISTER_URL,
                               body=json.dumps({'device_data': data}),
-                              # headers=headers,
+                              headers=headers,
                               method='POST')
         response = yield client.fetch(request)
         print "-----------------"

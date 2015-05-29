@@ -2,22 +2,17 @@ from ws4py.client.tornadoclient import TornadoWebSocketClient
 from tornado import ioloop
 import json
 import logging
+
+from models import Device
+
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-class Device(object):
-
-    def prepare(self):
-        pass
-
-    @property
-    def uuid(self):
-        return 'UUID-12345'
 
 class MyClient(TornadoWebSocketClient):
-
     def __init__(self, url, device):
-        url = url.format(uuid=device.uuid)
+        url = url.format(name=device.name)
         super(MyClient, self).__init__(url, protocols=['http-only', 'chat'])
 
     def opened(self):
@@ -61,9 +56,8 @@ class MyClient(TornadoWebSocketClient):
 
 if __name__ == '__main__':
     device = Device()
-    device.prepare()
 
-    ws = MyClient('ws://127.0.0.1:8888/wss/device/{uuid}/?token=TOKEN_1234', device=device)
+    ws = MyClient('ws://127.0.0.1:8888/wss/device/{name}/?token=TOKEN_1234', device=device)
     ws.connect()
 
     ioloop.IOLoop.instance().start()
