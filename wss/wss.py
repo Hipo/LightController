@@ -179,12 +179,12 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
             'switches': data['switches']
         }
 
-        client = AsyncHTTPClient(max_clients=100)
-        request = HTTPRequest(DEVICE_REGISTER_URL,
-                              body=json.dumps({'device_data': data}),
-                              # headers=headers,
-                              method='POST')
-        client.fetch(request, callback=self.device_register_callback)
+        # client = AsyncHTTPClient(max_clients=100)
+        # request = HTTPRequest(DEVICE_REGISTER_URL,
+        #                       body=json.dumps({'device_data': data}),
+        #                       # headers=headers,
+        #                       method='POST')
+        # client.fetch(request, callback=self.device_register_callback)
 
         return 'connected'
 
