@@ -259,12 +259,13 @@ class MessageToDeviceHandler(BaseHandler):
     @tornado.web.asynchronous
     def post(self, device_id):
         cmd = self.get_argument('cmd', None)
-        switch_id = self.get_argument('switch', None)
-        on_off = self.get_argument('switch', None)
+        switch_id = self.get_argument('switch_id', None)
+        on_off = self.get_argument('on_off', None)
 
         clients = websockets[device_id]
         for client in clients:
-            client.send_msg({'cmd': cmd, 'id': int(time.time()),'switch_id': switch_id, 'on_off': on_off})
+            client.send_msg({'cmd': cmd, 'id': int(time.time()),
+                             'switch_id': switch_id, 'on_off': on_off})
 
         self.write("OK")
         self.finish()
