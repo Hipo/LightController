@@ -12,7 +12,7 @@ class Device(object):
 
     @property
     def uuid(self):
-        return 'uuid-uuid'
+        return 'UUID-12345'
 
 class MyClient(TornadoWebSocketClient):
 
@@ -30,8 +30,10 @@ class MyClient(TornadoWebSocketClient):
     def cmd_ping(self, data):
         return 'pong'
 
-    def cmd_switch(self, data):
-        switch.open(data['switch_id'], data['onoff'])
+    def cmd_switch_light(self, data):
+        # TODO: @yigit baskan burayi doldurabilcen mi ?
+        # switch.open(data['switch_id'], data['onoff'])
+        print "here i switch", data
         return 'OK'
 
     def received_message(self, m):
