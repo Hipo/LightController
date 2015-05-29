@@ -13,7 +13,11 @@ def _create_json_http_response(bundle, **kwargs):
         'results': bundle
     }
 
-    return HttpResponse(json.dumps(response), content_type='application/json')
+    kwargs.update({
+        'content_type': 'application/json'
+    })
+
+    return HttpResponse(json.dumps(response), **kwargs)
 
 
 class ListDevicesView(View):
@@ -28,11 +32,7 @@ class ListDevicesView(View):
                 'name': device.name,
             })
 
-        response = {
-            'results': device_bundle
-        }
-
-        return HttpResponse(json.dumps(response), content_type='application/json')
+        return _create_json_http_response(device_bundle)
 
 
 class DeviceDetailView(View):
@@ -51,11 +51,7 @@ class DeviceDetailView(View):
                 'device': device
             })
 
-        response = {
-            'results': True
-        }
-
-        return HttpResponse(json.dumps(response), content_type='application/json')
+        return _create_json_http_response(True)
 
 
 class ListSwitchesView(View):
@@ -71,11 +67,7 @@ class ListSwitchesView(View):
                 'status': switch.status
             })
 
-        response = {
-            'results': switch_bundle
-        }
-
-        return HttpResponse(json.dumps(response), content_type='application/json')
+        return _create_json_http_response(switch_bundle)
 
 
 class SwitchDetailView(View):
@@ -93,11 +85,7 @@ class SwitchDetailView(View):
             'status': switch.status
         }
 
-        response = {
-            'results': switch_bundle
-        }
-
-        return HttpResponse(json.dumps(response), content_type='application/json')
+        return _create_json_http_response(switch_bundle)
 
     def post(self, request, *args, **kwargs):
         switch = get_object_or_404(Switch, switch_id=kwargs.get('switch_id'))
@@ -115,9 +103,5 @@ class SwitchDetailView(View):
             'cmd': 'switch_light'
         })
         '''
-        
-        response = {
-            'results': bool(int(switch.status))
-        }
 
-        return HttpResponse(json.dumps(response), content_type='application/json')
+        return _create_json_http_response(bool(int(switch.status)))
