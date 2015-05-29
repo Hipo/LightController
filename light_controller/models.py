@@ -1,8 +1,27 @@
 import json
 import settings
-import RPi.GPIO as GPIO
-
 from uuid import uuid4
+
+try:
+    import RPi.GPIO as GPIO
+except:
+    print("RPI IMPORT ERROR!!!!")
+    class GPIO(object):
+        @classmethod
+        def setwarnings(cls, *args, **kwargs):
+            pass
+
+        @classmethod
+        def setmode(self, *args, **kwargs):
+            pass
+
+        @classmethod
+        def setup(self, *args, **kwargs):
+            pass
+        BCM= None
+        OUT= None
+
+
 from settings import LAMP_PINS
 
 

@@ -3,8 +3,27 @@ from tornado import ioloop
 
 import json
 import logging
-import RPi.GPIO as GPIO
 import signal
+
+try:
+    import RPi.GPIO as GPIO
+except:
+    print("RPI IMPORT ERROR!!!!")
+
+    class GPIO(object):
+        @classmethod
+        def setwarnings(cls, *args, **kwargs):
+            pass
+
+        @classmethod
+        def setmode(cls, *args, **kwargs):
+            pass
+
+        @classmethod
+        def setup(cls, *args, **kwargs):
+            pass
+        BCM = None
+        OUT = None
 
 from models import Device
 from settings import LAMP_PINS
@@ -31,7 +50,7 @@ class MyClient(TornadoWebSocketClient):
         return 'pong'
 
     def cmd_switch_light(self, data):
-        GPIO.output(LAMP_PINS[0], GPIO.LOW)
+        #GPIO.output(LAMP_PINS[0], GPIO.LOW)
         
         # TODO: @yigit baskan burayi doldurabilcen mi ?
         # switch.open(data['switch_id'], data['onoff'])
