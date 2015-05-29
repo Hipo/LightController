@@ -72,12 +72,16 @@ def sigterm_handler(_signo, _stack_frame):
 
 signal.signal(signal.SIGTERM, sigterm_handler)
 
+import os
 
 if __name__ == '__main__':
     try:
         device = Device()
 
-        ws = MyClient('ws://127.0.0.1:8888/wss/device/{name}/?token=TOKEN_1234', device=device)
+        WS_URL = os.getenv('WS_URL', 'ws://127.0.0.1:8888/wss/device/{name}/?token=TOKEN_1234')
+
+
+        ws = MyClient(WS_URL, device=device)
         ws.connect()
 
         ioloop.IOLoop.instance().start()
