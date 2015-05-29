@@ -12,7 +12,6 @@ from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 import logging
 import datetime
 import calendar
-import redis
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,16 +21,8 @@ RABBIT_URL = os.getenv('RABBIT_URL', None)
 RABBIT_USERNAME = os.getenv('RABBIT_USERNAME', 'guest')
 RABBIT_PASS = os.getenv('RABBIT_PASS', 'guest')
 
-REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
-REDIS_PORT = os.getenv('REDIS_PORT', 6379)
-REDIS_DB = os.getenv('REDIS_DB', 0)
-
 PORT = os.getenv('LISTEN_PORT', 8888)
 ADDRESS = os.getenv('LISTEN_ADDRESS', '0.0.0.0')
-
-# some sanity checks
-REDIS_CONNECTION = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
-REDIS_CONNECTION.ping()
 
 
 pika_connected = False
@@ -155,7 +146,6 @@ def get_utc_timestamp():
 class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
     chat_token = None
     profile = None
-    redis_client = REDIS_CONNECTION
 
     def check_origin(self, origin):
         return True

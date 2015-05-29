@@ -1,9 +1,4 @@
-smart office hackaton projesi
-===============================
+LightController
+===============
 
-install: pip install -r requirements.txt
-
-run websocket server:
-    python wss/wss.py
-then run client:
-    python wss/client.py
+Python daemon for Raspberry Pi to control lights in the Hipo office

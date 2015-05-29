@@ -30,6 +30,10 @@ class MyClient(TornadoWebSocketClient):
     def cmd_ping(self, data):
         return 'pong'
 
+    def cmd_switch(self, data):
+        switch.open(data['switch_id'], data['onoff'])
+        return 'OK'
+
     def received_message(self, m):
         try:
             msg = json.loads(m.data)
