@@ -50,6 +50,12 @@ class MyClient(TornadoWebSocketClient):
         return 'pong'
 
     def cmd_switch_light(self, data):
+        switch_id = data["switch_id"]
+
+        on_off = bool(int(data["on_off"]))
+        print "*****"
+        print on_off
+        print "*****"
         #GPIO.output(LAMP_PINS[0], GPIO.LOW)
         
         # TODO: @yigit baskan burayi doldurabilcen mi ?
