@@ -212,7 +212,30 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
         ts = get_utc_timestamp()
 
 
+class MessageToDeviceHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    def get(self, *args, **kwargs):
+        self.write("unsupported")
+        self.finish()
+
+    @tornado.web.asynchronous
+    def post(self, device_id):
+        cmd = self.get_argument('cmd', None)
+        switch_id = self.get_argument('switch', None)
+        on_off = self.get_argument('switch', None)
+
+        clients = websockets[device_id]
+        for client in clients:
+            client.send_msg({'cmd': cmd, 'id': int(time.time()),'switch_id': switch_id, 'on_off': on_off})
+
+        self.write("OK")
+        self.finish()
+
+import time
+
 app = tornado.web.Application([(r'/wss/device/([a-zA-Z\-0-9\.:,_-]+)/?', WebSocketDeviceHandler),
+                               (r'/device/([a-zA-Z\-0-9\.:,_-]+)/message?', MessageToDeviceHandler),
                                (r'/index/?', IndexHandler)])
 
 pika_client = None
@@ -233,7 +256,7 @@ def run():
 
     task = tornado.ioloop.PeriodicCallback(
             ping_all,
-            1000)
+            10000)
     task.start()
 
 

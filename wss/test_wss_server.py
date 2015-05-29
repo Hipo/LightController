@@ -41,6 +41,20 @@ class TestChat(unittest.TestCase):
         result = json.loads(result)
         assert result['result'] == 'connected'
         assert result['id'] == 1
+
+        r = requests.post('http://127.0.0.1:8888/device/UUID-12345/message', data={
+            'switch_id': 1,
+            'on_off': 1,
+            'cmd': 'switch_light'
+        })
+        print ">>>", r.content
+        assert 'OK' in r.content
+
+        result = ws.recv()
+        print "result --- ", result
+        result = json.loads(result)
+        assert result['cmd'] == 'switch_light'
+
         ws.close()
 
     def tearDown(self):
