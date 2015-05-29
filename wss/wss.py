@@ -185,13 +185,14 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
             'switches': data['switches']
         }
         print "posting"
-        print json.dumps({'device_data': data})
 
-        headers = {'content-type': 'application/json'}
+        import urllib
+        post_data = { 'device_data': json.dumps(data) }
+        body = urllib.urlencode(post_data)
+
         client = AsyncHTTPClient(max_clients=100)
         request = HTTPRequest(DEVICE_REGISTER_URL,
-                              body=json.dumps({'device_data': data}),
-                              headers=headers,
+                              body=body,
                               method='POST')
         response = yield client.fetch(request)
         print "-----------------"
