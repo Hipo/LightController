@@ -1,6 +1,9 @@
 import json
 import settings
+import RPi.GPIO as GPIO
+
 from uuid import uuid4
+from settings import LAMP_PINS
 
 
 class Device(object):
@@ -17,6 +20,12 @@ class Device(object):
         except:
             self.name = self.create_unique_name()
             self.save()
+
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+
+        for LAMP_PIN in LAMP_PINS:
+            GPIO.setup(LAMP_PIN, GPIO.OUT)
 
     def create_unique_name(self):
         name = settings.DEVICE_NAME_TEMPLATE % uuid4().hex[:6]
@@ -35,4 +44,3 @@ class Device(object):
 
         with open(settings.DATA_STORAGE_PATH, 'w') as f:
             json.dump(data, f, ensure_ascii=False)
-
