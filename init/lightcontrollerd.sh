@@ -15,7 +15,7 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 NAME=lightcontroller
-DAEMON=/home/pi/LightController/lightcontroller.py
+DAEMON=/home/pi/lightcontroller/light_controller/client.py
 DAEMONARGS=""
 PIDFILE=/var/run/$NAME.pid
 LOGFILE=/var/log/$NAME.log

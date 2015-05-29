@@ -25,6 +25,8 @@ PORT = os.getenv('LISTEN_PORT', 8888)
 ADDRESS = os.getenv('LISTEN_ADDRESS', '0.0.0.0')
 
 
+DEVICE_REGISTER_URL = 'http://192.168.0.26:8000/devices/initialize'
+
 pika_connected = False
 websockets = defaultdict(set)
 
@@ -157,36 +159,71 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
             self.write_message(json.dumps(dict({"ERROR": message})))
             self.close()
 
+    def device_register_callback(self, buffer, *args, **kwargs):
+        print "device register callback completed"
+        print "buffer ====="
+        print buffer
+        print "// ========="
+
     @gen.coroutine
     def open(self, *args, **kwargs):
         logger.info('new connection')
 
         self.device_uuid = args[0]
+
         pika_client.declare_queue(self.device_uuid)
         pika_client.websocket = self
         websockets[self.device_uuid].add(self)
 
+    @gen.coroutine
     def cmd_hello(self, data):
-        return 'connected'
 
+        print ">>>", data
+
+        data = {
+            'device_uuid': self.device_uuid,
+            'switches': data['switches']
+        }
+        print "posting"
+
+        import urllib
+        post_data = { 'device_data': json.dumps(data) }
+        body = urllib.urlencode(post_data)
+
+        # client = AsyncHTTPClient(max_clients=100)
+        # request = HTTPRequest(DEVICE_REGISTER_URL,
+        #                       body=body,
+        #                       method='POST')
+        # response = yield client.fetch(request)
+        # print "-----------------"
+        # print response
+        # print '// ---- response ---'
+
+        raise gen.Return('connected')
+
+
+    @gen.coroutine
     def cmd_dummy(self, data):
-        return 'pong'
+        raise gen.Return('pong')
 
+    @gen.coroutine
     def cmd_register(self, data):
-        return 'ok'
+        raise gen.Return('ok')
 
+    @gen.coroutine
     def dispatch_message(self, message):
         cmd = message.get('cmd', 'dummy')
 
         fn = getattr(self, 'cmd_%s' % cmd, None)
         if fn:
-            reply = fn(message)
+            reply = yield fn(message)
             pika_client.sample_message(json.dumps({
                 'result': reply,
                 'token' : self.device_uuid,
                 'id': message['id']
             }))
 
+    @gen.coroutine
     def on_message(self, message):
         ts = get_utc_timestamp()
         message_dict = json.loads(message)
@@ -195,7 +232,7 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
         # dont echo back
         # pika_client.sample_message(json.dumps(message_dict))
         try:
-            self.dispatch_message(message_dict)
+            yield self.dispatch_message(message_dict)
         except:
             logger.exception("exception")
 
@@ -212,7 +249,31 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
         ts = get_utc_timestamp()
 
 
+class MessageToDeviceHandler(BaseHandler):
+
+    @tornado.web.asynchronous
+    def get(self, *args, **kwargs):
+        self.write("unsupported")
+        self.finish()
+
+    @tornado.web.asynchronous
+    def post(self, device_id):
+        cmd = self.get_argument('cmd', None)
+        switch_id = self.get_argument('switch_id', None)
+        on_off = self.get_argument('on_off', None)
+
+        clients = websockets[device_id]
+        for client in clients:
+            client.send_msg({'cmd': cmd, 'id': int(time.time()),
+                             'switch_id': switch_id, 'on_off': on_off})
+
+        self.write("OK")
+        self.finish()
+
+import time
+
 app = tornado.web.Application([(r'/wss/device/([a-zA-Z\-0-9\.:,_-]+)/?', WebSocketDeviceHandler),
+                               (r'/device/([a-zA-Z\-0-9\.:,_-]+)/message?', MessageToDeviceHandler),
                                (r'/index/?', IndexHandler)])
 
 pika_client = None
@@ -231,10 +292,10 @@ def run():
     pika_client = PikaClient(ioloop)
     pika_client.connect()
 
-    task = tornado.ioloop.PeriodicCallback(
-            ping_all,
-            1000)
-    task.start()
+    # task = tornado.ioloop.PeriodicCallback(
+    #         ping_all,
+    #         10000)
+    # task.start()
 
 
     ioloop.start()
