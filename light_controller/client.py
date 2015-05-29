@@ -60,7 +60,7 @@ class MyClient(TornadoWebSocketClient):
 
     def cmd_switch_light(self, data):
         switch_id = data["switch_id"]
-        on_off = bool(int(data["on_off"]))
+        on_off = data["on_off"] == "True"
 
         print "here i switch %s to %s" % (switch_id, on_off)
         GPIO.output(LAMPS[switch_id], GPIO.LOW if on_off else GPIO.HIGH)
