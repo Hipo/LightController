@@ -10,21 +10,15 @@ logger = logging.getLogger(__name__)
 import time
 import os
 import json
-import redis
 import requests
 import wss
 import json
 import os
 
-os.environ['HIPOCHAT_REDIS_DB'] = "3"
-
 
 class TestChat(unittest.TestCase):
 
     def setUp(self):
-        self.redis_conn = redis.StrictRedis(db=3)
-        self.redis_conn.flushdb()
-
         self.process = Process(target=wss.run)
         self.process.start()
 
