@@ -63,7 +63,7 @@ class MyClient(TornadoWebSocketClient):
         on_off = bool(int(data["on_off"]))
 
         print "here i switch %s to %s" % (switch_id, on_off)
-        GPIO.output(LAMPS[switch_id], GPIO.HIGH if on_off else GPIO.LOW)
+        GPIO.output(LAMPS[switch_id], GPIO.LOW if on_off else GPIO.HIGH)
 
     def received_message(self, m):
         try:
