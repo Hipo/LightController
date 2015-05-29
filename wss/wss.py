@@ -25,7 +25,7 @@ PORT = os.getenv('LISTEN_PORT', 8888)
 ADDRESS = os.getenv('LISTEN_ADDRESS', '0.0.0.0')
 
 
-DEVICE_REGISTER_URL = 'http://192.168.0.26:8000/devices/'
+DEVICE_REGISTER_URL = 'http://192.168.0.26:8000/devices/initialize'
 
 pika_connected = False
 websockets = defaultdict(set)
@@ -159,8 +159,11 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
             self.write_message(json.dumps(dict({"ERROR": message})))
             self.close()
 
-    def device_register_callback(self, *args, **kwargs):
+    def device_register_callback(self, buffer, *args, **kwargs):
         print "device register callback completed"
+        print "buffer ====="
+        print buffer
+        print "// ========="
 
     @gen.coroutine
     def open(self, *args, **kwargs):
@@ -172,7 +175,10 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
         pika_client.websocket = self
         websockets[self.device_uuid].add(self)
 
+    @gen.coroutine
     def cmd_hello(self, data):
+
+        print ">>>", data
 
         data = {
             'device_uuid': self.device_uuid,
@@ -184,30 +190,36 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
                               body=json.dumps({'device_data': data}),
                               # headers=headers,
                               method='POST')
-        client.fetch(request, callback=self.device_register_callback)
+        response = yield client.fetch(request)
+        print "-----------------"
+        print response
+        print '// ---- response ---'
 
-        return 'connected'
+        raise gen.Return('connected')
 
 
-
+    @gen.coroutine
     def cmd_dummy(self, data):
-        return 'pong'
+        raise gen.Return('pong')
 
+    @gen.coroutine
     def cmd_register(self, data):
-        return 'ok'
+        raise gen.Return('ok')
 
+    @gen.coroutine
     def dispatch_message(self, message):
         cmd = message.get('cmd', 'dummy')
 
         fn = getattr(self, 'cmd_%s' % cmd, None)
         if fn:
-            reply = fn(message)
+            reply = yield fn(message)
             pika_client.sample_message(json.dumps({
                 'result': reply,
                 'token' : self.device_uuid,
                 'id': message['id']
             }))
 
+    @gen.coroutine
     def on_message(self, message):
         ts = get_utc_timestamp()
         message_dict = json.loads(message)
@@ -216,7 +228,7 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
         # dont echo back
         # pika_client.sample_message(json.dumps(message_dict))
         try:
-            self.dispatch_message(message_dict)
+            yield self.dispatch_message(message_dict)
         except:
             logger.exception("exception")
 

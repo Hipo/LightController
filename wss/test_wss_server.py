@@ -31,6 +31,7 @@ class TestChat(unittest.TestCase):
         d = json.dumps(dict(
             cmd="hello",
             type="message",
+            switches=['sw1', 'sw2'],
             id=1
 
         ))
