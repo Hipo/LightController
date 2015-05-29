@@ -24,6 +24,7 @@ class MyClient(TornadoWebSocketClient):
         print "opened connection"
         self.send(json.dumps(dict(
             cmd='hello',
+            switches=['sw1', 'sw2'],
             id=1
         )))
 

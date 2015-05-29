@@ -25,6 +25,8 @@ PORT = os.getenv('LISTEN_PORT', 8888)
 ADDRESS = os.getenv('LISTEN_ADDRESS', '0.0.0.0')
 
 
+DEVICE_REGISTER_URL = 'http://192.168.0.26:8000/devices/'
+
 pika_connected = False
 websockets = defaultdict(set)
 
@@ -157,17 +159,36 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
             self.write_message(json.dumps(dict({"ERROR": message})))
             self.close()
 
+    def device_register_callback(self, *args, **kwargs):
+        print "device register callback completed"
+
     @gen.coroutine
     def open(self, *args, **kwargs):
         logger.info('new connection')
 
         self.device_uuid = args[0]
+
         pika_client.declare_queue(self.device_uuid)
         pika_client.websocket = self
         websockets[self.device_uuid].add(self)
 
     def cmd_hello(self, data):
+
+        data = {
+            'device_uuid': self.device_uuid,
+            'switches': data['switches']
+        }
+
+        client = AsyncHTTPClient(max_clients=100)
+        request = HTTPRequest(DEVICE_REGISTER_URL,
+                              body=json.dumps({'device_data': data}),
+                              # headers=headers,
+                              method='POST')
+        client.fetch(request, callback=self.device_register_callback)
+
         return 'connected'
+
+
 
     def cmd_dummy(self, data):
         return 'pong'
