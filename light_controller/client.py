@@ -84,10 +84,12 @@ def sigterm_handler(_signo, _stack_frame):
     """
     Caught SIGTERM, cleanup and exit
     """
-    GPIO.cleanup()
+    try:
+        GPIO.cleanup()
 
-    sys.exit(0)
-
+        sys.exit(0)
+    except:
+        pass
 
 signal.signal(signal.SIGTERM, sigterm_handler)
 

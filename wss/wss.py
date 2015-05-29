@@ -190,14 +190,14 @@ class WebSocketDeviceHandler(tornado.websocket.WebSocketHandler):
         post_data = { 'device_data': json.dumps(data) }
         body = urllib.urlencode(post_data)
 
-        client = AsyncHTTPClient(max_clients=100)
-        request = HTTPRequest(DEVICE_REGISTER_URL,
-                              body=body,
-                              method='POST')
-        response = yield client.fetch(request)
-        print "-----------------"
-        print response
-        print '// ---- response ---'
+        # client = AsyncHTTPClient(max_clients=100)
+        # request = HTTPRequest(DEVICE_REGISTER_URL,
+        #                       body=body,
+        #                       method='POST')
+        # response = yield client.fetch(request)
+        # print "-----------------"
+        # print response
+        # print '// ---- response ---'
 
         raise gen.Return('connected')
 
