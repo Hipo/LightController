@@ -94,11 +94,13 @@ signal.signal(signal.SIGTERM, sigterm_handler)
 import os
 
 if __name__ == '__main__':
+
+    # WS_URL='ws://127.0.0.1:8888/wss/device/{name}/?token=TOKEN_1234' python light_controller/client.py
+
     try:
         device = Device()
 
         WS_URL = os.getenv('WS_URL', 'ws://127.0.0.1:8888/wss/device/{name}/?token=TOKEN_1234')
-
 
         ws = MyClient(WS_URL, device=device)
         ws.connect()
