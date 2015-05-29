@@ -43,7 +43,7 @@ class Device(object):
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
 
-        for lamp_key, lamp_pin in LAMPS:
+        for lamp_key, lamp_pin in LAMPS.iteritems():
             GPIO.setup(lamp_pin, GPIO.OUT)
 
     def create_unique_name(self):
