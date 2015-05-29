@@ -1,9 +1,13 @@
 from ws4py.client.tornadoclient import TornadoWebSocketClient
 from tornado import ioloop
+
 import json
 import logging
+import RPi.GPIO as GPIO
+import signal
 
 from models import Device
+from settings import LAMP_PINS
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -27,6 +31,8 @@ class MyClient(TornadoWebSocketClient):
         return 'pong'
 
     def cmd_switch_light(self, data):
+        GPIO.output(LAMP_PINS[0], GPIO.LOW)
+        
         # TODO: @yigit baskan burayi doldurabilcen mi ?
         # switch.open(data['switch_id'], data['onoff'])
         print "here i switch", data
@@ -54,10 +60,26 @@ class MyClient(TornadoWebSocketClient):
         raise Exception('socket closed')
         # ioloop.IOLoop.instance().stop()
 
+
+def sigterm_handler(_signo, _stack_frame):
+    """
+    Caught SIGTERM, cleanup and exit
+    """
+    GPIO.cleanup()
+
+    sys.exit(0)
+
+
+signal.signal(signal.SIGTERM, sigterm_handler)
+
+
 if __name__ == '__main__':
-    device = Device()
+    try:
+        device = Device()
 
-    ws = MyClient('ws://127.0.0.1:8888/wss/device/{name}/?token=TOKEN_1234', device=device)
-    ws.connect()
+        ws = MyClient('ws://127.0.0.1:8888/wss/device/{name}/?token=TOKEN_1234', device=device)
+        ws.connect()
 
-    ioloop.IOLoop.instance().start()
+        ioloop.IOLoop.instance().start()
+    except KeyboardInterrupt:
+        GPIO.cleanup()
