@@ -15,7 +15,7 @@ class Device(models.Model):
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         if not self.name:
-            self.name = 'Device me baby one more time! - %s' % randint(2, 9123)
+            self.name = self.device_id
 
         super(Device, self).save(force_insert=False, force_update=False, using=None,
              update_fields=None)
@@ -36,7 +36,7 @@ class Switch(models.Model):
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         if not self.name:
-            self.name = 'Switch me baby one more time! - %s' % randint(2, 9123)
+            self.name = self.switch_id
 
         super(Switch, self).save(force_insert=False, force_update=False, using=None,
              update_fields=None)

@@ -91,17 +91,15 @@ class SwitchDetailView(View):
         switch = get_object_or_404(Switch, switch_id=kwargs.get('switch_id'))
 
         request_body = json.loads(request.body)
-
         switch.status = request_body["status"]
         switch.save()
 
-        post_url = 'http://127.0.0.1:8888/device/%s/message' % switch.device.device_id
-        '''
+        post_url = 'http://192.168.0.32:8888/device/%s/message' % switch.device.device_id
+
         requests.post(post_url, data={
             'switch_id': switch.switch_id,
             'on_off': switch.status,
             'cmd': 'switch_light'
         })
-        '''
 
         return _create_json_http_response(bool(int(switch.status)))
